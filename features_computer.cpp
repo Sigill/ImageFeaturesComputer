@@ -80,6 +80,8 @@ int main(int argc, char** argv)
 		// create an instance of the class
 		FeaturesComputer* p = create_plug();
 
+		p->setLogger(logger);
+
 		// use the class
 		OutputImageType::Pointer output = p->compute(input_image, computers_options.at(i));
 
