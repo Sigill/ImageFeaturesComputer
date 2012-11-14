@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 
-#include <itkImage.h>
+#include "datatypes.h"
 
 class ImageLoadingException : public std::runtime_error
 {
@@ -16,26 +16,24 @@ class ImageLoader
 {
 public:
 
-	typedef itk::Image< unsigned char, 3 > ImageType;
-
 	/**
 	 * Load an image either as a single file or as a serie of files.
 	 * @param[in] filename The file to load of the folder containing the files. Must exists.
 	 */
-	static ImageType::Pointer load(const std::string filename);
+	static InputImageType::Pointer load(const std::string filename);
 
 private:
 	/**
 	 * Load an image as a single file.
 	 * @param[in] filename The file to load. Must exists.
 	 */
-	static ImageType::Pointer loadImage(const std::string filename);
+	static InputImageType::Pointer loadImage(const std::string filename);
 
 	/**
 	 * Load an image as a serie of files.
 	 * @param[in] filename The folder containing the files. Must be a directory.
 	 */
-	static ImageType::Pointer loadImageSerie(const std::string filename);
+	static InputImageType::Pointer loadImageSerie(const std::string filename);
 
 };
 

@@ -19,8 +19,8 @@
 
 namespace po = boost::program_options;
 
-typedef itk::RescaleIntensityImageFilter< ImageLoader::ImageType, ImageLoader::ImageType > RescaleFilter;
-typedef typename itk::Statistics::ScalarImageToHaralickTextureFeaturesImageFilter< ImageLoader::ImageType, double > HaralickFilter;
+typedef itk::RescaleIntensityImageFilter< InputImageType, InputImageType > RescaleFilter;
+typedef typename itk::Statistics::ScalarImageToHaralickTextureFeaturesImageFilter< InputImageType, float > HaralickFilter;
 typedef typename HaralickFilter::OutputImageType HaralickImageType;
 
 typedef itk::ImageFileWriter< HaralickImageType > OutputImageWriter;
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 
 	LOG4CXX_INFO(logger, "Input image: " << input_image_path);
 
-	ImageLoader::ImageType::Pointer input_image;
+	InputImageType::Pointer input_image;
 	try {
 		input_image = ImageLoader::load(input_image_path);
 	} catch (ImageLoadingException &ex) {

@@ -10,10 +10,10 @@
 
 #include "log4cxx/logger.h"
 
-typedef itk::ImageFileReader< ImageLoader::ImageType > ImageReader;
-typedef itk::ImageSeriesReader< ImageLoader::ImageType > ImageSeriesReader;
+typedef itk::ImageFileReader< InputImageType > ImageReader;
+typedef itk::ImageSeriesReader< InputImageType > ImageSeriesReader;
 
-ImageLoader::ImageType::Pointer ImageLoader::load(const std::string filename)
+InputImageType::Pointer ImageLoader::load(const std::string filename)
 {
 	log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
 
@@ -24,7 +24,7 @@ ImageLoader::ImageType::Pointer ImageLoader::load(const std::string filename)
 		boost::filesystem::path path(filename);
 
 		if(boost::filesystem::exists(path)) {
-			ImageType::Pointer img;
+			InputImageType::Pointer img;
 
 			if(boost::filesystem::is_directory(path))
 			{
@@ -55,7 +55,7 @@ ImageLoader::ImageType::Pointer ImageLoader::load(const std::string filename)
 	}
 }
 
-ImageLoader::ImageType::Pointer ImageLoader::loadImage(const std::string filename)
+InputImageType::Pointer ImageLoader::loadImage(const std::string filename)
 {
 	typename ImageReader::Pointer reader = ImageReader::New();
 
@@ -75,7 +75,7 @@ ImageLoader::ImageType::Pointer ImageLoader::loadImage(const std::string filenam
 	return reader->GetOutput();
 }
 
-ImageLoader::ImageType::Pointer ImageLoader::loadImageSerie(const std::string filename)
+InputImageType::Pointer ImageLoader::loadImageSerie(const std::string filename)
 {
 	typename ImageSeriesReader::Pointer reader = ImageSeriesReader::New();
 

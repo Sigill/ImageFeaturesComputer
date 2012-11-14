@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 
 	LOG4CXX_INFO(logger, "Input image: " << input_image_path);
 
-	ImageLoader::ImageType::Pointer input_image;
+	InputImageType::Pointer input_image;
 	try {
 		input_image = ImageLoader::load(input_image_path);
 	} catch (ImageLoadingException &ex) {
