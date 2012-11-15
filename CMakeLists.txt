@@ -37,7 +37,7 @@ target_link_libraries(coordinates image_loader ${ITK_LIBRARIES} ${Boost_LIBRARIE
 add_executable(haralick generate_haralick_image.cpp)
 target_link_libraries(haralick image_loader ${ITK_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES})
 
-add_executable(features_computer features_computer.cpp cli_parser.cpp image_loader.cpp FeaturesComputer.cpp)
+add_executable(features_computer features_computer.cpp cli_parser.cpp image_loader.cpp FeaturesComputerLoader.cpp)
 target_link_libraries(features_computer ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES} ${ITK_LIBRARIES})
 
 add_library(CoordinatesComputer SHARED CoordinatesComputer.cpp)

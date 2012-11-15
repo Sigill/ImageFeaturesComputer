@@ -16,12 +16,13 @@ public:
 		m_Logger = logger;
 	}
 
+	virtual void print_usage(std::ostream &os) = 0;
+
 protected:
 	log4cxx::LoggerPtr m_Logger;
 };
 
 // the types of the class factories
 typedef FeaturesComputer* create_t();
-void destroy(FeaturesComputer* fc);
 
 #endif /* FEATURESCOMPUTER_HPP */

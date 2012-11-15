@@ -12,9 +12,8 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include <dlfcn.h>
 
-#include "FeaturesComputer.hpp"
+#include "FeaturesComputerLoader.h"
 
 #include "itkComposeVectorImageFilter.h"
 
@@ -22,6 +21,8 @@
 
 typedef itk::ComposeVectorImageFilter< OutputImageType, OutputImageType> JoinImageFilterType;
 typedef itk::ImageFileWriter< OutputImageType > OutputImageWriter;
+
+FeaturesComputer* load_plugin(const std::string name);
 
 int main(int argc, char** argv)
 {
@@ -37,7 +38,26 @@ int main(int argc, char** argv)
 
 	CliParser cli_parser;
 	int parse_result = cli_parser.parse_argv(argc, argv);
-	if(parse_result <= 0) {
+
+	if(parse_result == 0) // --help
+	{
+		std::vector< std::string > modules_needing_help = cli_parser.get_modules_needing_help();
+
+		if(modules_needing_help.empty())
+		{
+			cli_parser.print_main_usage(std::cout);
+		} else {
+			std::vector< std::string >::const_iterator it;
+			for(it = modules_needing_help.begin(); it < modules_needing_help.end(); ++it)
+			{
+				FeaturesComputerLoader p(*it);
+				p->setLogger(logger);
+				p->print_usage(std::cout);
+			}
+		}
+	}
+	
+	if(parse_result <= 0) { // --help or error
 		exit(parse_result);
 	}
 
@@ -57,33 +77,19 @@ int main(int argc, char** argv)
 	{
 		std::cout << "Running: " << computers.at(i) << std::endl;
 
-		std::ostringstream plugin_file;
-		plugin_file << "./lib" << computers.at(i) << ".so";
-
-		void* plug = dlopen(plugin_file.str().c_str(), RTLD_LAZY);
-		if (!plug) {
-			LOG4CXX_FATAL(logger, "Cannot load library: " << dlerror());
-			return 1;
-		}
-
-		// reset errors
-		dlerror();
-
-		// load the symbols
-		create_t* create_plug = (create_t*) dlsym(plug, "create");
-		const char* dlsym_error = dlerror();
-		if (dlsym_error) {
-			LOG4CXX_FATAL(logger, "Cannot load symbol create: " << dlsym_error);
-			return 1;
-		}
-
-		// create an instance of the class
-		FeaturesComputer* p = create_plug();
+		FeaturesComputerLoader p(computers.at(i));
 
 		p->setLogger(logger);
 
+		OutputImageType::Pointer output;
+
 		// use the class
-		OutputImageType::Pointer output = p->compute(input_image, computers_options.at(i));
+		try {
+			output = p->compute(input_image, computers_options.at(i));
+		} catch( std::exception &ex) {
+			LOG4CXX_FATAL(logger, ex.what());
+			return -1;
+		}
 
 		if(output_image.IsNull()) {
 			output_image = output;
@@ -96,13 +102,6 @@ int main(int argc, char** argv)
 			output_image = joinFilter->GetOutput();
 		}
 
-		// destroy the class
-		//destroy_plug(p);
-		destroy(p);
-
-		// unload the plug library
-		dlclose(plug);
-
 		std::cout << "Done" << std::endl;
 	}
 
@@ -110,4 +109,9 @@ int main(int argc, char** argv)
 	writer->SetInput(output_image);
 	writer->SetFileName(cli_parser.get_output_image());
 	writer->Update();
+}
+
+FeaturesComputer* load_plugin(const std::string name)
+{
+
 }

@@ -1,7 +1,7 @@
 #include "cli_parser.h"
 
 #include <boost/filesystem.hpp>
-#include <iostream>
+#include <ostream>
 #include <vector>
 
 #include <boost/regex.hpp>
@@ -10,18 +10,12 @@
 
 namespace po = boost::program_options;
 
-CliParser::CliParser()
-{}
-
-int CliParser::parse_argv(int argc, char ** argv)
+CliParser::CliParser() :
+	main_options_descriptions("Main options")
 {
-	log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
-
-	LOG4CXX_INFO(logger, "Parsing command line options");
-
-	po::options_description main_options_descriptions("Main options");
-	main_options_descriptions.add_options()
+	this->main_options_descriptions.add_options()
 		("help,h",
+			po::value< std::vector< std::string > >()->zero_tokens()->multitoken(),
 			"Produce help message")
 		("input-image,i",
 			po::value< std::string >(&(this->input_image))->required(),
@@ -29,10 +23,14 @@ int CliParser::parse_argv(int argc, char ** argv)
 		("output-image,o",
 			po::value< std::string >(&(this->output_image))->required(),
 			"Ouput image (required)")
-		/*("computer,c",
-			po::value< std::vector< std::string > >()->required()->multitoken(),
-			"Features computers")*/
 		;
+}
+
+int CliParser::parse_argv(int argc, char ** argv)
+{
+	log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
+
+	LOG4CXX_INFO(logger, "Parsing command line options");
 
 	po::variables_map vm;
 
@@ -43,6 +41,16 @@ int CliParser::parse_argv(int argc, char ** argv)
 		std::vector< po::basic_option< char > >::iterator it;
 
 		po::store(recognized_main_options, vm);
+
+		// Handling --help before notify() in order to allow ->required()
+		// http://stackoverflow.com/questions/5395503/required-and-optional-arguments-using-boost-library-program-options#answer-5517755
+		if (vm.count("help")) {
+			this->app_command = argv[0];
+			this->need_help = vm["help"].as< std::vector< std::string > >();
+			return 0;
+		}
+
+		vm.notify();
 
 		std::vector<std::string> unrecognized_options = po::collect_unrecognized(recognized_main_options.options, po::include_positional);
 
@@ -83,15 +91,6 @@ int CliParser::parse_argv(int argc, char ** argv)
 		}
 		*/
 
-		// Handling --help before notify() in order to allow ->required()
-		// http://stackoverflow.com/questions/5395503/required-and-optional-arguments-using-boost-library-program-options#answer-5517755
-		if (vm.count("help")) {
-			std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
-			std::cout << main_options_descriptions;
-			return 0;
-		}
-
-		po::notify(vm);
 	} catch(po::error &err) {
 		LOG4CXX_FATAL(logger, err.what());
 		return -1;
@@ -101,6 +100,11 @@ int CliParser::parse_argv(int argc, char ** argv)
 	LOG4CXX_INFO(logger, "Output image: " << this->output_image);
 
 	return 1;
+}
+
+const std::vector<std::string> CliParser::get_modules_needing_help() const
+{
+	return this->need_help;
 }
 
 const std::string CliParser::get_input_image() const
@@ -121,4 +125,10 @@ const std::vector<std::string> CliParser::get_computers() const
 const std::vector< std::vector< std::string > > CliParser::get_computers_options() const
 {
 	return this->computers_options;
+}
+
+void CliParser::print_main_usage(std::ostream &os) const
+{
+	os << "Usage: " << this->app_command << " [options]" << std::endl;
+	os << this->main_options_descriptions;
 }
