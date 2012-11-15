@@ -16,6 +16,7 @@ class CoordinatesComputer : public FeaturesComputer
 private:
 	boost::program_options::options_description options;
 	unsigned int dimension;
+	bool normalization;
 
 public:
 	CoordinatesComputer():
@@ -24,7 +25,9 @@ public:
 		options.add_options()
 			("dimension,d",
 			 po::value< unsigned int >(&this->dimension)->default_value(3),
-			 "Dimensions of the coordinates space: 2 or 3 (default)")
+			 "Dimensions of the coordinates space: 2 or (default) 3")
+			("normalize,n",
+			 "Enables normalization (default: disabled")
 			;
 	}
 
@@ -45,17 +48,30 @@ public:
 			boost::program_options::validation_error err =
 				po::validation_error(
 					po::validation_error::invalid_option_value, 
-					boost::lexical_cast<std::string>(this->dimension), 
+					boost::lexical_cast< std::string >(this->dimension), 
 					"dimension");
 			throw err;
 		}
+
+		this->normalization = vm.count("normalize") > 0;
 
 		OutputImageType::Pointer output_image = OutputImageType::New();
 		output_image->SetRegions( input_image->GetLargestPossibleRegion() );
 		output_image->SetVectorLength(this->dimension);
 		output_image->Allocate();
 
-		OutputImageIterator ito(output_image, output_image->GetLargestPossibleRegion());
+		const typename OutputImageType::RegionType image_region = output_image->GetLargestPossibleRegion();
+		typename OutputImageType::RegionType::SizeType image_size = image_region.GetSize();
+
+		/*
+		for(itk::SizeValueType i = 0; i < OutputImageType::RegionType::SizeType::Dimension; ++i)
+		{
+			if(image_size[i] > 1)
+				image_size[i] -= 1;
+		}
+		*/
+
+		OutputImageIterator ito(output_image, image_region);
 
 		OutputImageType::PixelType out_pix;
 		OutputImageType::IndexType coords;
@@ -69,6 +85,15 @@ public:
 			out_pix[1] = coords[1];
 			if(this->dimension == 3)
 				out_pix[2] = coords[2];
+
+			if(this->normalization) {
+				out_pix[0] /= image_size[0];
+				out_pix[1] /= image_size[1];
+				if(this->dimension == 3)
+					out_pix[2] /= image_size[2];
+			}
+
+			std::cout << out_pix << std::endl;
 
 			ito.Set(out_pix);
 
