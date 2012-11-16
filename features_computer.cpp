@@ -22,8 +22,6 @@
 typedef itk::ComposeVectorImageFilter< OutputImageType, OutputImageType> JoinImageFilterType;
 typedef itk::ImageFileWriter< OutputImageType > OutputImageWriter;
 
-FeaturesComputer* load_plugin(const std::string name);
-
 int main(int argc, char** argv)
 {
 	log4cxx::BasicConfigurator::configure(
@@ -111,7 +109,3 @@ int main(int argc, char** argv)
 	writer->Update();
 }
 
-FeaturesComputer* load_plugin(const std::string name)
-{
-
-}
