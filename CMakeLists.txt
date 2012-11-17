@@ -41,7 +41,9 @@ add_executable(features_computer features_computer.cpp cli_parser.cpp image_load
 target_link_libraries(features_computer ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES} ${ITK_LIBRARIES})
 
 add_library(CoordinatesComputer SHARED CoordinatesComputer.cpp)
-
 set_target_properties(CoordinatesComputer PROPERTIES COMPILE_FLAGS -fPIC)
-
 target_link_libraries(CoordinatesComputer ${ITK_LIBRARIES})
+
+add_library(HaralickComputer SHARED HaralickComputer.cpp)
+set_target_properties(HaralickComputer PROPERTIES COMPILE_FLAGS -fPIC)
+target_link_libraries(HaralickComputer ${ITK_LIBRARIES})
