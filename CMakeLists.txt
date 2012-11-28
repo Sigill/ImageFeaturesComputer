@@ -47,3 +47,6 @@ target_link_libraries(CoordinatesComputer ${ITK_LIBRARIES})
 add_library(HaralickComputer SHARED HaralickComputer.cpp)
 set_target_properties(HaralickComputer PROPERTIES COMPILE_FLAGS -fPIC)
 target_link_libraries(HaralickComputer ${ITK_LIBRARIES})
+
+CONFIGURE_FILE(features_computer.sh "${PROJECT_BINARY_DIR}/features_computer.sh" COPYONLY)
+

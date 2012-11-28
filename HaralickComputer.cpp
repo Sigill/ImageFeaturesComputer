@@ -100,7 +100,7 @@ public:
 			("offset,o",
 				po::value< std::vector< cli_offset > >(&this->offsets)->required()->multitoken(), "Offset (required)")
 			("normalize,n",
-			 "Enables normalization (default: disabled")
+			 "Enables normalization (default: disabled)")
 			;
 	}
 

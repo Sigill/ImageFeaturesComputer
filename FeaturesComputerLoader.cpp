@@ -6,7 +6,7 @@
 FeaturesComputerLoader::FeaturesComputerLoader(const std::string name)
 {
 	std::ostringstream plugin_file;
-	plugin_file << "./lib" << name << ".so";
+	plugin_file << "lib" << name << ".so";
 
 	void* plug = dlopen(plugin_file.str().c_str(), RTLD_LAZY);
 	if (!plug) {

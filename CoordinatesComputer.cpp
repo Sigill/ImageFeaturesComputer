@@ -27,7 +27,7 @@ public:
 			 po::value< unsigned int >(&this->dimension)->default_value(3),
 			 "Dimensions of the coordinates space: 2 or (default) 3")
 			("normalize,n",
-			 "Enables normalization (default: disabled")
+			 "Enables normalization (default: disabled)")
 			;
 	}
 
