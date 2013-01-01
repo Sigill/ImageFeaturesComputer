@@ -125,6 +125,8 @@ public:
 		rescaler->SetOutputMaximum(this->posterization_level - 1);
 		rescaler->Update();
 
+		LOG4CXX_INFO(m_Logger, "Posterization done.");
+
 		typename HaralickFilter::Pointer haralickImageComputer = HaralickFilter::New();
 		haralickImageComputer->SetInput(rescaler->GetOutput());
 		haralickImageComputer->SetNumberOfBinsPerAxis(this->posterization_level);
@@ -154,13 +156,15 @@ public:
 
 		haralickImageComputer->Update();
 
+		LOG4CXX_INFO(m_Logger, "Computation of Haralick features done.");
+
 		if(!this->normalization) {
 			return haralickImageComputer->GetOutput();
 		} else {
 			// Rescale haralick features
 			HaralickFeatureComposeFilterType::Pointer imageToVectorImageFilter = HaralickFeatureComposeFilterType::New();
 
-			#pragma omp parallel for
+			//#pragma omp parallel for
 			for(int i = 0; i < haralickImageComputer->GetOutput()->GetNumberOfComponentsPerPixel(); ++i)
 			{
 				HaralickFeatureAdaptorType::Pointer adaptor = HaralickFeatureAdaptorType::New();
@@ -174,6 +178,7 @@ public:
 
 				rescaler->Update();
 
+				//std::cerr << "Setting input " << i << std::endl;
 				imageToVectorImageFilter->SetInput(i, rescaler->GetOutput());
 			}
 
