@@ -48,5 +48,8 @@ add_library(HaralickComputer SHARED HaralickComputer.cpp)
 set_target_properties(HaralickComputer PROPERTIES COMPILE_FLAGS -fPIC)
 target_link_libraries(HaralickComputer ${ITK_LIBRARIES})
 
+add_executable(channel_cutter channel_cutter.cpp)
+target_link_libraries(channel_cutter image_loader ${ITK_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES})
+
 CONFIGURE_FILE(features_computer.sh "${PROJECT_BINARY_DIR}/features_computer.sh" COPYONLY)
 
