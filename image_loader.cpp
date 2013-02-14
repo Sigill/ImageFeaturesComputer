@@ -4,6 +4,7 @@
 #include "itkImageSeriesReader.h"
 
 #include <ostream>
+#include <algorithm>
 
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
@@ -86,17 +87,21 @@ InputImageType::Pointer ImageLoader::loadImageSerie(const std::string filename)
 	try
 	{
 		boost::filesystem::path path(filename);
-		boost::filesystem::directory_iterator end_iter;
 		boost::regex pattern(".*\\.((?:png)|(?:bmp)|(?:jpe?g))", boost::regex::icase);
 
-		for( boost::filesystem::directory_iterator dir_iter(path) ; dir_iter != end_iter ; ++dir_iter)
+		typedef std::vector< boost::filesystem::path > path_list;
+		path_list slices;
+		std::copy(boost::filesystem::directory_iterator(path), boost::filesystem::directory_iterator(), std::back_inserter(slices));
+		std::sort(slices.begin(), slices.end());
+
+		for( path_list::const_iterator it(slices.begin()) ; it != slices.end() ; ++it)
 		{
 			boost::smatch match;
-			if( !boost::regex_match( dir_iter->path().filename().string(), match, pattern ) ) continue;
+			if( !boost::regex_match( (*it).filename().string(), match, pattern ) ) continue;
 
-			LOG4CXX_DEBUG(logger, "Loading \"" << boost::filesystem::absolute(dir_iter->path()).string() << "\"");
+			LOG4CXX_DEBUG(logger, "Loading \"" << boost::filesystem::absolute(*it).string() << "\"");
 
-			filenames.push_back(boost::filesystem::absolute(dir_iter->path()).string());
+			filenames.push_back(boost::filesystem::absolute(*it).string());
 		}
 	}
 	catch(boost::filesystem::filesystem_error &ex) {
