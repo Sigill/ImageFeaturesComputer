@@ -11,7 +11,8 @@
 namespace po = boost::program_options;
 
 CliParser::CliParser() :
-	main_options_descriptions("Main options")
+	main_options_descriptions("Main options"),
+	computer_options_descriptions("Computer options")
 {
 	this->main_options_descriptions.add_options()
 		("help,h",
@@ -23,6 +24,12 @@ CliParser::CliParser() :
 		("output-image,o",
 			po::value< std::string >(&(this->output_image))->required(),
 			"Ouput image (required)")
+		;
+
+	this->computer_options_descriptions.add_options()
+		("computer,c",
+		 po::value< std::string >()->required(),
+		 "Features computers")
 		;
 }
 
@@ -54,15 +61,8 @@ int CliParser::parse_argv(int argc, char ** argv)
 
 		std::vector<std::string> unrecognized_options = po::collect_unrecognized(recognized_main_options.options, po::include_positional);
 
-		po::options_description plugin_options_descriptions("Plugin options");
-		plugin_options_descriptions.add_options()
-			("computer,c",
-			  po::value< std::string >()->required(),
-			  "Features computers")
-			;
-
 		po::parsed_options recognized_plugin_options = 
-			po::command_line_parser(unrecognized_options).options(plugin_options_descriptions).allow_unregistered().run();
+			po::command_line_parser(unrecognized_options).options(this->computer_options_descriptions).allow_unregistered().run();
 
 		std::vector< std::vector< std::string > > computers_options;
 
@@ -131,4 +131,5 @@ void CliParser::print_main_usage(std::ostream &os) const
 {
 	os << "Usage: " << this->app_command << " [options]" << std::endl;
 	os << this->main_options_descriptions;
+	os << this->computer_options_descriptions;
 }
