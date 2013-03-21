@@ -31,14 +31,8 @@ endif()
 
 add_library(image_loader image_loader.cpp)
 
-add_executable(coordinates generate_coordinates_image.cpp)
-target_link_libraries(coordinates image_loader ${ITK_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES})
-
-add_executable(haralick generate_haralick_image.cpp)
-target_link_libraries(haralick image_loader ${ITK_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES})
-
-add_executable(features_computer features_computer.cpp cli_parser.cpp image_loader.cpp FeaturesComputerLoader.cpp)
-target_link_libraries(features_computer ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES} ${ITK_LIBRARIES})
+add_executable(features_computer features_computer.cpp cli_parser.cpp FeaturesComputerLoader.cpp)
+target_link_libraries(features_computer image_loader ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES} ${ITK_LIBRARIES})
 
 add_library(CoordinatesComputer SHARED CoordinatesComputer.cpp)
 set_target_properties(CoordinatesComputer PROPERTIES COMPILE_FLAGS -fPIC)
@@ -47,6 +41,10 @@ target_link_libraries(CoordinatesComputer ${ITK_LIBRARIES})
 add_library(HaralickComputer SHARED HaralickComputer.cpp)
 set_target_properties(HaralickComputer PROPERTIES COMPILE_FLAGS -fPIC)
 target_link_libraries(HaralickComputer ${ITK_LIBRARIES})
+
+add_library(MeanValueComputer SHARED MeanValueComputer.cpp)
+set_target_properties(MeanValueComputer PROPERTIES COMPILE_FLAGS -fPIC)
+target_link_libraries(MeanValueComputer ${ITK_LIBRARIES})
 
 add_executable(channel_cutter channel_cutter.cpp)
 target_link_libraries(channel_cutter image_loader ${ITK_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES})
