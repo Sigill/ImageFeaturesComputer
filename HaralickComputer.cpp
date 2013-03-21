@@ -25,8 +25,6 @@ typedef typename itk::Image< typename OutputImageType::PixelType::ValueType, 3 >
 
 typedef itk::RescaleIntensityImageFilter< HaralickFeatureAdaptorType, HaralickFeatureImageType > HaralickFeatureImageRescaleFilter;
 
-typedef itk::ComposeImageFilter< HaralickFeatureImageType, OutputImageType > HaralickFeatureComposeFilterType;
-
 class cli_offset {
 public :
 	cli_offset() : m_offset(3)
@@ -86,7 +84,6 @@ private:
 	unsigned int posterization_level;
 	cli_offset window;
 	std::vector< cli_offset > offsets;
-	bool normalization;
 
 public:
 	HaralickComputer():
@@ -99,8 +96,6 @@ public:
 				po::value< cli_offset >(&this->window)->required(), "Window radius (required)")
 			("offset,o",
 				po::value< std::vector< cli_offset > >(&this->offsets)->required()->multitoken(), "Offset (required)")
-			("normalize,n",
-			 "Enables normalization (default: disabled)")
 			;
 	}
 
@@ -115,8 +110,6 @@ public:
 
 		po::store(po::command_line_parser(params).options(this->options).run(), vm);
 		vm.notify();
-
-		this->normalization = vm.count("normalize") > 0;
 
 		// Posterize the input image
 		typename RescaleFilter::Pointer rescaler = RescaleFilter::New();
@@ -158,34 +151,7 @@ public:
 
 		LOG4CXX_INFO(m_Logger, "Computation of Haralick features done.");
 
-		if(!this->normalization) {
-			return haralickImageComputer->GetOutput();
-		} else {
-			// Rescale haralick features
-			HaralickFeatureComposeFilterType::Pointer imageToVectorImageFilter = HaralickFeatureComposeFilterType::New();
-
-			//#pragma omp parallel for
-			for(int i = 0; i < haralickImageComputer->GetOutput()->GetNumberOfComponentsPerPixel(); ++i)
-			{
-				HaralickFeatureAdaptorType::Pointer adaptor = HaralickFeatureAdaptorType::New();
-				adaptor->SetExtractComponentIndex(i);
-				adaptor->SetImage(haralickImageComputer->GetOutput());
-
-				HaralickFeatureImageRescaleFilter::Pointer rescaler = HaralickFeatureImageRescaleFilter::New();
-				rescaler->SetInput(adaptor);
-				rescaler->SetOutputMinimum(0.0);
-				rescaler->SetOutputMaximum(1.0);
-
-				rescaler->Update();
-
-				//std::cerr << "Setting input " << i << std::endl;
-				imageToVectorImageFilter->SetInput(i, rescaler->GetOutput());
-			}
-
-			imageToVectorImageFilter->Update();
-
-			return imageToVectorImageFilter->GetOutput();
-		}
+		return haralickImageComputer->GetOutput();
 	}
 };
 
