@@ -43,7 +43,15 @@ int main(int argc, char** argv)
 
 		if(modules_needing_help.empty())
 		{
-			cli_parser.print_main_usage(std::cout);
+			cli_parser.print_main_usage(std::cerr);
+
+			/* Does not look in LD_LIBRARY_PATH
+			std::vector< std::string > available_modules = FeaturesComputerLoader::getAvailableModules();
+
+			std::cerr << "Available computers:" << std::endl;
+			for (std::vector< std::string >::const_iterator it = available_modules.begin() ; it != available_modules.end(); ++it)
+				std::cerr << "\t" << *it << std::endl;
+			*/
 		} else {
 			std::vector< std::string >::const_iterator it;
 			for(it = modules_needing_help.begin(); it < modules_needing_help.end(); ++it)

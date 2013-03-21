@@ -3,12 +3,13 @@
 #include <dlfcn.h>
 #include <sstream>
 
+#include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
+
 FeaturesComputerLoader::FeaturesComputerLoader(const std::string name)
 {
-	std::ostringstream plugin_file;
-	plugin_file << "lib" << name << ".so";
+	void* plug = dlopen(FeaturesComputerLoader::filename(name).c_str(), RTLD_LAZY);
 
-	void* plug = dlopen(plugin_file.str().c_str(), RTLD_LAZY);
 	if (!plug) {
 		std::stringstream err;
 		err << "Cannot load library " << name << ": " << dlerror();
@@ -47,3 +48,52 @@ FeaturesComputerLoader::~FeaturesComputerLoader()
 		this->module = NULL;
 	}
 }
+
+FeaturesComputer* FeaturesComputerLoader::operator->()
+{
+	return this->computer;
+}
+
+/*
+std::vector< std::string > FeaturesComputerLoader::getAvailableModules()
+{
+	std::vector< std::string > available_modules;
+
+	static const boost::regex computerFilter( "lib.+Computer\\.so" );
+
+	boost::filesystem::path path(".");
+	boost::filesystem::directory_iterator end_itr;
+	for( boost::filesystem::directory_iterator i( path ); i != end_itr; ++i ) {
+		// Skip if not a file
+		if( !boost::filesystem::is_regular_file( i->status() ) ) continue;
+
+		boost::smatch match;
+
+		// Skip if no match
+		if( !boost::regex_match( i->path().filename().string(), match, computerFilter ) ) continue;
+
+		// File matches, store it
+		available_modules.push_back( FeaturesComputerLoader::computerName(i->path().filename().string()) );
+	}
+
+	return available_modules;
+}
+*/
+
+std::string FeaturesComputerLoader::filename(const std::string name)
+{
+	std::ostringstream f;
+	f << "lib" << name << "Computer.so";
+
+	return f.str();
+}
+
+std::string FeaturesComputerLoader::computerName(const std::string filename)
+{
+	boost::regex exp("^lib(.+)Computer\\.so");
+	boost::smatch match;
+	if (boost::regex_search(filename, match, exp)) {
+		return std::string(match[1].first, match[1].second);
+	}
+}
+
