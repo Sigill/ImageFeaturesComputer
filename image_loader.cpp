@@ -99,7 +99,7 @@ InputImageType::Pointer ImageLoader::loadImageSerie(const std::string filename)
 			boost::smatch match;
 			if( !boost::regex_match( (*it).filename().string(), match, pattern ) ) continue;
 
-			LOG4CXX_DEBUG(logger, "Loading \"" << boost::filesystem::absolute(*it).string() << "\"");
+			LOG4CXX_DEBUG(logger, "Loading slice \"" << boost::filesystem::absolute(*it).string() << "\"");
 
 			filenames.push_back(boost::filesystem::absolute(*it).string());
 		}
