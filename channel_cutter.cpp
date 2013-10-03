@@ -73,10 +73,10 @@ int main(int argc, char** argv)
 			"Ouput image (required)")
 		("keep,k",
 			po::value< std::vector< int > >(&channels_to_keep)->multitoken(),
-			"Channels to keep")
+			"Channels to keep (1-based)")
 		("remove,r",
 			po::value< std::vector< int > >(&channels_to_remove)->multitoken(),
-			"Channels to remove")
+			"Channels to remove (1-based)")
 		;
 
 	po::variables_map vm;
