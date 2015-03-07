@@ -1,7 +1,9 @@
-#include "log4cxx/logger.h"
-#include "log4cxx/consoleappender.h"
-#include "log4cxx/patternlayout.h"
-#include "log4cxx/basicconfigurator.h"
+#ifdef USE_LOG4CXX
+#  include "log4cxx/logger.h"
+#  include "log4cxx/consoleappender.h"
+#  include "log4cxx/patternlayout.h"
+#  include "log4cxx/basicconfigurator.h"
+#endif
 
 #include "datatypes.h"
 
@@ -24,6 +26,7 @@ typedef itk::ImageFileWriter< OutputImageType > OutputImageWriter;
 
 int main(int argc, char** argv)
 {
+#ifdef USE_LOG4CXX
 	log4cxx::BasicConfigurator::configure(
 			log4cxx::AppenderPtr(new log4cxx::ConsoleAppender(
 					log4cxx::LayoutPtr(new log4cxx::PatternLayout("\%-5p - [%c] - \%m\%n")),
@@ -33,6 +36,7 @@ int main(int argc, char** argv)
 			);
 
 	log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
+#endif
 
 	CliParser cli_parser;
 	int parse_result = cli_parser.parse_argv(argc, argv);
@@ -57,7 +61,9 @@ int main(int argc, char** argv)
 			for(it = modules_needing_help.begin(); it < modules_needing_help.end(); ++it)
 			{
 				FeaturesComputerLoader p(*it);
+#ifdef USE_LOG4CXX
 				p->setLogger(logger);
+#endif
 				p->print_usage(std::cout);
 			}
 		}
@@ -71,7 +77,9 @@ int main(int argc, char** argv)
 	try {
 		input_image = ImageLoader::load(cli_parser.get_input_image());
 	} catch (ImageLoadingException &ex) {
+#ifdef USE_LOG4CXX
 		LOG4CXX_FATAL(logger, ex.what());
+#endif
 	}
 
 	std::vector< std::string > computers = cli_parser.get_computers();
@@ -85,7 +93,9 @@ int main(int argc, char** argv)
 
 		FeaturesComputerLoader p(computers.at(i));
 
+#ifdef USE_LOG4CXX
 		p->setLogger(logger);
+#endif
 
 		OutputImageType::Pointer output;
 
@@ -93,7 +103,9 @@ int main(int argc, char** argv)
 		try {
 			output = p->compute(input_image, computers_options.at(i));
 		} catch( std::exception &ex) {
+#ifdef USE_LOG4CXX
 			LOG4CXX_FATAL(logger, ex.what());
+#endif
 			return -1;
 		}
 

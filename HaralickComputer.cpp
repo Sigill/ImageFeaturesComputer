@@ -118,7 +118,9 @@ public:
 		rescaler->SetOutputMaximum(this->posterization_level - 1);
 		rescaler->Update();
 
+#ifdef USE_LOG4CXX
 		LOG4CXX_INFO(m_Logger, "Posterization done.");
+#endif
 
 		typename HaralickFilter::Pointer haralickImageComputer = HaralickFilter::New();
 		haralickImageComputer->SetInput(rescaler->GetOutput());
@@ -149,7 +151,9 @@ public:
 
 		haralickImageComputer->Update();
 
+#ifdef USE_LOG4CXX
 		LOG4CXX_INFO(m_Logger, "Computation of Haralick features done.");
+#endif
 
 		return haralickImageComputer->GetOutput();
 	}

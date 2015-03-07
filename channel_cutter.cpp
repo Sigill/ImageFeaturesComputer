@@ -1,7 +1,9 @@
-#include "log4cxx/logger.h"
-#include "log4cxx/consoleappender.h"
-#include "log4cxx/patternlayout.h"
-#include "log4cxx/basicconfigurator.h"
+#ifdef USE_LOG4CXX
+#  include "log4cxx/logger.h"
+#  include "log4cxx/consoleappender.h"
+#  include "log4cxx/patternlayout.h"
+#  include "log4cxx/basicconfigurator.h"
+#endif
 
 #include <boost/program_options.hpp>
 
@@ -45,6 +47,7 @@ private:
 
 int main(int argc, char** argv)
 {
+#ifdef USE_LOG4CXX
 	log4cxx::BasicConfigurator::configure(
 			log4cxx::AppenderPtr(new log4cxx::ConsoleAppender(
 					log4cxx::LayoutPtr(new log4cxx::PatternLayout("\%-5p - [%c] - \%m\%n")),
@@ -54,6 +57,7 @@ int main(int argc, char** argv)
 			);
 
 	log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
+#endif
 
 	std::string input_image_path;
 	std::string output_image_path;
@@ -98,24 +102,32 @@ int main(int argc, char** argv)
 
 		vm.notify();
 	} catch(po::error &err) {
+#ifdef USE_LOG4CXX
 		LOG4CXX_FATAL(logger, err.what());
+#endif
 		return -1;
 	}
 
+#ifdef USE_LOG4CXX
 	LOG4CXX_INFO(logger, "Input image: " << input_image_path);
 	LOG4CXX_INFO(logger, "Output image: " << output_image_path);
+#endif
 
 	ImageReader::Pointer reader = ImageReader::New();
 	reader->SetFileName(input_image_path);
 	try {
 		reader->Update();
 	} catch ( itk::ExceptionObject & err ) {
+#ifdef USE_LOG4CXX
 		LOG4CXX_FATAL(logger, "The image located at \"" << input_image_path << "\" is not readable");
+#endif
 		return -1;
 	}
 
 	if(channels_to_keep.empty() == channels_to_remove.empty()) { // XOR trick
+#ifdef USE_LOG4CXX
 		LOG4CXX_FATAL(logger, "You need to provide a list of either the channels to keep or the channels to remove (not both)");
+#endif
 		return -1;
 	}
 
@@ -123,11 +135,15 @@ int main(int argc, char** argv)
 		/*
 		std::stringstream list;
 		list << channels_to_remove;
+#ifdef USE_LOG4CXX
 		LOG4CXX_INFO(logger, "Channels to remove: " << list.str());
+#endif
 
 		std::vector< int >::iterator it = std::find_if(channels_to_remove.begin(), channels_to_remove.end(), out_of_range_predicate(1, reader->GetOutput()->GetNumberOfComponentsPerPixel() + 1));
 		if(it != channels_to_remove.end()) {
+#ifdef USE_LOG4CXX
 			LOG4CXX_FATAL(logger, "Channel #" << *it << " does not exists");
+#endif
 			return -1;
 		}
 		*/
@@ -142,11 +158,15 @@ int main(int argc, char** argv)
 	{
 		std::stringstream list;
 		list << channels_to_keep;
+#ifdef USE_LOG4CXX
 		LOG4CXX_INFO(logger, "Channels to keep: " << list.str());
+#endif
 
 		std::vector< int >::iterator it = std::find_if(channels_to_keep.begin(), channels_to_keep.end(), out_of_range_predicate(1, reader->GetOutput()->GetNumberOfComponentsPerPixel() + 1));
 		if(it != channels_to_keep.end()) {
+#ifdef USE_LOG4CXX
 			LOG4CXX_FATAL(logger, "Channel #" << *it << " does not exists");
+#endif
 			return -1;
 		}
 	}

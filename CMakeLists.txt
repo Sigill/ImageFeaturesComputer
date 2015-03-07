@@ -3,6 +3,9 @@ project(FeaturesGraphComputer)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
+option(USE_LOG4CXX "Use log4cxx" ON)
+mark_as_advanced(USE_LOG4CXX)
+
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 # Should be shared libraries, and be compiled with the -fPIC flag
@@ -16,8 +19,11 @@ set(Boost_USE_STATIC_RUNTIME    ON)
 find_package(Boost COMPONENTS program_options system filesystem regex REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
-find_package(Log4Cxx REQUIRED)
-include_directories(${LOG4CXX_INCLUDE_DIR})
+if(USE_LOG4CXX)
+	find_package(Log4Cxx REQUIRED)
+	include_directories(${LOG4CXX_INCLUDE_DIR})
+	add_definitions(-DUSE_LOG4CXX)
+endif()
 
 include(FindOpenMP)
 if(OPENMP_FOUND)
@@ -48,6 +54,11 @@ target_link_libraries(MeanValueComputer ${ITK_LIBRARIES})
 
 add_executable(channel_cutter channel_cutter.cpp)
 target_link_libraries(channel_cutter image_loader ${ITK_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES})
+
+if(USE_LOG4CXX)
+	target_link_libraries(features_computer image_loader ${LOG4CXX_LIBRARIES})
+	target_link_libraries(channel_cutter image_loader ${LOG4CXX_LIBRARIES})
+endif()
 
 CONFIGURE_FILE(features_computer.sh "${PROJECT_BINARY_DIR}/features_computer.sh" COPYONLY)
 

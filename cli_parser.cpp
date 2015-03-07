@@ -6,7 +6,9 @@
 
 #include <boost/regex.hpp>
 
-#include "log4cxx/logger.h"
+#ifdef USE_LOG4CXX
+#  include "log4cxx/logger.h"
+#endif
 
 namespace po = boost::program_options;
 
@@ -35,9 +37,10 @@ CliParser::CliParser() :
 
 int CliParser::parse_argv(int argc, char ** argv)
 {
+#ifdef USE_LOG4CXX
 	log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
-
 	LOG4CXX_INFO(logger, "Parsing command line options");
+#endif
 
 	po::variables_map vm;
 
@@ -92,12 +95,16 @@ int CliParser::parse_argv(int argc, char ** argv)
 		*/
 
 	} catch(po::error &err) {
+#ifdef USE_LOG4CXX
 		LOG4CXX_FATAL(logger, err.what());
+#endif
 		return -1;
 	}
 
+#ifdef USE_LOG4CXX
 	LOG4CXX_INFO(logger, "Input image: " << this->input_image);
 	LOG4CXX_INFO(logger, "Output image: " << this->output_image);
+#endif
 
 	return 1;
 }

@@ -9,16 +9,20 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
-#include "log4cxx/logger.h"
+#ifdef USE_LOG4CXX
+	#include "log4cxx/logger.h"
+#endif
 
 typedef itk::ImageFileReader< InputImageType > ImageReader;
 typedef itk::ImageSeriesReader< InputImageType > ImageSeriesReader;
 
 InputImageType::Pointer ImageLoader::load(const std::string filename)
 {
-	log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
 
+#ifdef USE_LOG4CXX
+	log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
 	LOG4CXX_INFO(logger, "Loading image \"" << filename << "\"");
+#endif
 
 	try
 	{
@@ -29,23 +33,32 @@ InputImageType::Pointer ImageLoader::load(const std::string filename)
 
 			if(boost::filesystem::is_directory(path))
 			{
+#ifdef USE_LOG4CXX
 				LOG4CXX_DEBUG(logger, path << " is a folder");
+#endif
 
 				img = loadImageSerie(filename);
 			} else {
+#ifdef USE_LOG4CXX
 				LOG4CXX_DEBUG(logger, path << " is a file");
+#endif
 
 				img = loadImage(filename);
 			}
 
+#ifdef USE_LOG4CXX
 			LOG4CXX_INFO(logger, "Image " << path << " loaded");
+#endif
 
 			return img;
 		} else {
 			std::stringstream err;
 			err << "\"" << filename << "\" does not exists";
 
+
+#ifdef USE_LOG4CXX
 			LOG4CXX_FATAL(logger, err.str());
+#endif
 
 			throw ImageLoadingException(err.str());
 		}
@@ -82,7 +95,9 @@ InputImageType::Pointer ImageLoader::loadImageSerie(const std::string filename)
 
 	typename ImageSeriesReader::FileNamesContainer filenames;
 
+#ifdef USE_LOG4CXX
 	log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("main"));
+#endif
 
 	try
 	{
@@ -99,7 +114,9 @@ InputImageType::Pointer ImageLoader::loadImageSerie(const std::string filename)
 			boost::smatch match;
 			if( !boost::regex_match( (*it).filename().string(), match, pattern ) ) continue;
 
+#ifdef USE_LOG4CXX
 			LOG4CXX_DEBUG(logger, "Loading slice \"" << boost::filesystem::absolute(*it).string() << "\"");
+#endif
 
 			filenames.push_back(boost::filesystem::absolute(*it).string());
 		}
