@@ -55,7 +55,6 @@ int CliParser::parse_argv(int argc, char ** argv)
 		// Handling --help before notify() in order to allow ->required()
 		// http://stackoverflow.com/questions/5395503/required-and-optional-arguments-using-boost-library-program-options#answer-5517755
 		if (vm.count("help")) {
-			this->app_command = argv[0];
 			this->need_help = vm["help"].as< std::vector< std::string > >();
 			return 0;
 		}
@@ -136,7 +135,7 @@ const std::vector< std::vector< std::string > > CliParser::get_computers_options
 
 void CliParser::print_main_usage(std::ostream &os) const
 {
-	os << "Usage: " << this->app_command << " [options]" << std::endl;
+	os << "Usage: ./features_computer.sh [options]" << std::endl;
 	os << this->main_options_descriptions;
 	os << this->computer_options_descriptions;
 }

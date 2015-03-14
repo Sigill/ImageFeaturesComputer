@@ -22,7 +22,6 @@ public:
 private:
 	boost::program_options::options_description main_options_descriptions;
 	boost::program_options::options_description computer_options_descriptions;
-	std::string app_command;
 	std::vector< std::string > need_help;
 	std::string input_image;
 	std::string output_image;

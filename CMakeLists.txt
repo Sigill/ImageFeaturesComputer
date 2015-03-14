@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(FeaturesGraphComputer)
+project(ImageFeaturesComputer)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
@@ -8,7 +8,6 @@ mark_as_advanced(USE_LOG4CXX)
 
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
-# Should be shared libraries, and be compiled with the -fPIC flag
 
 find_package(ITK_Haralick REQUIRED)
 include_directories(${ITK_Haralick_INCLUDE_DIRS})
@@ -32,13 +31,10 @@ if(OPENMP_FOUND)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-#find_package(TULIP3 REQUIRED)
-#include_directories(${TULIP_INCLUDE_DIR})
-
 add_library(image_loader image_loader.cpp)
 
-add_executable(features_computer features_computer.cpp cli_parser.cpp FeaturesComputerLoader.cpp)
-target_link_libraries(features_computer image_loader ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES} ${ITK_LIBRARIES})
+add_executable(features_computer_bin features_computer.cpp cli_parser.cpp FeaturesComputerLoader.cpp)
+target_link_libraries(features_computer_bin image_loader ${Boost_LIBRARIES} ${ITK_LIBRARIES})
 
 add_library(CoordinatesComputer SHARED CoordinatesComputer.cpp)
 set_target_properties(CoordinatesComputer PROPERTIES COMPILE_FLAGS -fPIC)
@@ -53,10 +49,10 @@ set_target_properties(MeanValueComputer PROPERTIES COMPILE_FLAGS -fPIC)
 target_link_libraries(MeanValueComputer ${ITK_LIBRARIES})
 
 add_executable(channel_cutter channel_cutter.cpp)
-target_link_libraries(channel_cutter image_loader ${ITK_LIBRARIES} ${Boost_LIBRARIES} ${LOG4CXX_LIBRARIES})
+target_link_libraries(channel_cutter image_loader ${ITK_LIBRARIES} ${Boost_LIBRARIES})
 
 if(USE_LOG4CXX)
-	target_link_libraries(features_computer image_loader ${LOG4CXX_LIBRARIES})
+	target_link_libraries(features_computer_bin image_loader ${LOG4CXX_LIBRARIES})
 	target_link_libraries(channel_cutter image_loader ${LOG4CXX_LIBRARIES})
 endif()
 
